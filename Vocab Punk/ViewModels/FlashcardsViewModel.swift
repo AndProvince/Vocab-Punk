@@ -6,17 +6,19 @@
 //
 
 import Foundation
-import SwiftUI
+import Combine
 
 class FlashcardsViewModel: ObservableObject {
-    @Published var cards: [WordCard]
+    @Published var cards: [WordCard] = []
     @Published var currentIndex: Int = 0
     @Published var isFlipped: Bool = false
-    
-    public var userEmail: String
+
+    let userEmail: String
+    let lang: String
+    let level: String
+
+    private var cancellables = Set<AnyCancellable>()
     public var progress: [String: WordProgress] = [:]
-    public var level: String
-    public var lang: String
 
     init(email: String, lang: String = "EN", level: String = "A1") {
         self.userEmail = email
@@ -26,9 +28,26 @@ class FlashcardsViewModel: ObservableObject {
         self.level = level
         self.lang = lang
 
-        self.cards = DictionaryManager.shared.loadDictionary(lang: lang, level: level)
+        loadCards()
         self.progress = ProgressManager.shared.loadProgress(for: email)
         self.currentIndex = self.selectNextCardIndex()
+        
+        // Подпишемся на обновление словарей
+        NotificationCenter.default.publisher(for: .dictionariesDidUpdate)
+            .sink { [weak self] _ in
+                self?.reloadDictionaries()
+            }
+            .store(in: &cancellables)
+    }
+    
+    func loadCards() {
+        cards = DictionaryManager.shared.loadDictionary(lang: lang, level: level)
+    }
+    
+    func reloadDictionaries() {
+        DictionaryManager.shared.clearCache() // очищаем память (на всякий случай)
+        loadCards()
+        currentIndex = selectNextCardIndex()
     }
     
     var currentCard: WordCard? {

@@ -91,8 +91,11 @@ class ProgressManager {
     }
     
     // MARK: - Очистка кэша
-    func clearCache(for email: String) {
+    func clearCache(for email: String, removeData: Bool = false) {
         cachedProgress.removeValue(forKey: email)
+        
+        guard removeData else { return }
+        saveProgress(for: email, progress: [:])
     }
 
     func clearAllCache() {

@@ -8,21 +8,21 @@
 import SwiftUI
 
 struct FlashcardsSetsView: View {
-    @State private var levels: [String: [String]] = [:]
-    @State private var selectedLevel: IdentifiableString? = nil
     @State private var isShowingProfile = false
-
-    @StateObject private var loginViewModel = LoginViewModel()
-    
+    @State private var selectedLevel: IdentifiableString? = nil
     @State private var selectedLanguage = "EN" // текущий язык
     @State private var showLanguageMenu = false
+
+    @StateObject private var loginViewModel = LoginViewModel()
+    @ObservedObject private var updateService = DictionaryUpdateService.shared
+    @ObservedObject private var fsViewModel = FlashcardsSetsViewModel()
 
     var body: some View {
         NavigationView {
             VStack {
                 if loginViewModel.isLoggedIn {
                     ScrollView {
-                        if let languageLevels = levels[selectedLanguage] {
+                        if let languageLevels = fsViewModel.levels[selectedLanguage] {
                             VStack(spacing: 16) {
                                 ForEach(languageLevels, id: \.self) { level in
                                     LevelSelectButton(level: level) {
@@ -40,9 +40,6 @@ struct FlashcardsSetsView: View {
                                     .padding()
                             }
                         }
-                    }
-                    .onAppear {
-                        levels = DictionaryManager.shared.availableLevels()
                     }
                 } else {
                     VStack(spacing: 12) {
@@ -62,12 +59,15 @@ struct FlashcardsSetsView: View {
                 }
 
                 Spacer()
+                
+                Text("v.\(updateService.localVersion ?? "-")")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
             }
-//            .navigationTitle("Карточки")
             .navigationBarItems(
                 leading:
                     Menu {
-                        ForEach(levels.keys.sorted(), id: \.self) { code in
+                        ForEach(fsViewModel.levels.keys.sorted(), id: \.self) { code in
                             Button {
                                 selectedLanguage = code
                             } label: {
@@ -81,7 +81,6 @@ struct FlashcardsSetsView: View {
                                 }
                             }
                         }
-                        AdminPanelView()
                     } label: {
                         Image(LanguagesData.flags[selectedLanguage] ?? "flag")
                             .resizable()
@@ -99,7 +98,7 @@ struct FlashcardsSetsView: View {
             )
             .sheet(item: $selectedLevel) { item in
                 FlashcardsView(
-                    viewModel: FlashcardsViewModel(email: loginViewModel.email, level: item.value)
+                    viewModel: FlashcardsViewModel(email: loginViewModel.email, lang: selectedLanguage, level: item.value)
                 )
             }
             .sheet(isPresented: $isShowingProfile) {

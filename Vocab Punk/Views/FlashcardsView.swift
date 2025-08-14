@@ -23,8 +23,10 @@ struct FlashcardsView: View {
         ZStack(alignment: .bottom) {
             VStack {
                 HStack(spacing: 6) {
-                    Image(systemName: "book.fill")
-                        .font(.title2)
+                    Image(LanguagesData.flags[viewModel.lang] ?? "flag")
+                        .resizable()
+                        .frame(width: 24, height: 16)
+                        .clipShape(RoundedRectangle(cornerRadius: 3))
                     Text("Уровень: \(viewModel.level)")
                         .font(.title3)
                         .fontWeight(.semibold)

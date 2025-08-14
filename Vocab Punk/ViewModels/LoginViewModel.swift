@@ -22,7 +22,7 @@ class LoginViewModel: ObservableObject {
         if auth.authenticate(email: email, password: password) {
             isLoggedIn = true
             errorMessage = nil
-            print("Вход выполнен с email: \(email), пароль: \(password)")
+//            print("Вход выполнен с email: \(email), пароль: \(password)")
         } else {
             errorMessage = "Неверный email или пароль"
         }
@@ -34,7 +34,7 @@ class LoginViewModel: ObservableObject {
         if auth.register(email: email, password: password) {
             isLoggedIn = true
             errorMessage = nil
-            print("Регистрация с email: \(email), пароль: \(password)")
+//            print("Регистрация с email: \(email), пароль: \(password)")
         } else {
             errorMessage = "Пользователь с таким email уже существует"
         }

@@ -13,6 +13,8 @@ struct ProfileView: View {
     
     @State private var levels: [String: [String]] = [:]
     @State private var progressByLevel: [String: [String: Double]] = [:]
+    
+    @State private var showResetConfirmation = false
 
     var body: some View {
         NavigationView {
@@ -90,16 +92,38 @@ struct ProfileView: View {
                             }
                         }
                     }
-                    
-                    // Кнопка выхода
-                    Button(action: { loginVM.logout() }) {
-                        Text("Выйти")
-                            .foregroundColor(.red)
-                            .frame(maxWidth: .infinity)
+
+                    HStack(spacing: 8) {
+                        // Сброс прогресса
+                        Button {
+                            showResetConfirmation = true
+                        } label: {
+                            Text("Сбросить")
+                        }
+                        .modifier(ProfileButtonStyle(
+                            backgroundColor: Color.red.opacity(0.15),
+                            foregroundColor: .red
+                        ))
+                        .alert("Вы уверены?", isPresented: $showResetConfirmation) {
+                            Button("Сбросить", role: .destructive) {
+                                ProgressManager.shared.clearCache(for: loginVM.email, removeData: true)
+                            }
+                            Button("Отмена", role: .cancel) { }
+                        } message: {
+                            Text("Это действие удалит весь ваш прогресс обучения и его нельзя будет отменить.")
+                        }
+                        
+                        // Выход
+                        Button {
+                            loginVM.logout()
+                        } label: {
+                            Text("Выйти")
+                        }
+                        .modifier(ProfileButtonStyle(
+                            backgroundColor: Color.gray.opacity(0.15),
+                            foregroundColor: .red
+                        ))
                     }
-                    .padding(.vertical, 12)
-                    .background(Color(.systemGray6))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding(.horizontal)
                     
                 } else {

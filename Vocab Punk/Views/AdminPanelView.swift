@@ -47,6 +47,7 @@ struct AdminPanelView: View {
                 VStack(spacing: 15) {
                     Button(action: {
                         activeAlert = .resetDictionary
+                        DictionaryManager.shared.clearCache(removeFiles: true)
                     }) {
                         Text("Очистить кэш словарей")
                             .font(.headline)
@@ -82,7 +83,7 @@ struct AdminPanelView: View {
                         title: Text("Подтверждение"),
                         message: Text("Вы уверены, что хотите очистить кэш словарей?"),
                         primaryButton: .destructive(Text("Очистить")) {
-                            DictionaryManager.shared.clearCache()
+                            DictionaryManager.shared.clearCache(removeFiles: true)
 //                            let _ = DictionaryManager.shared.loadDictionary(lang: selectedLanguage, level: "A1")
                         },
                         secondaryButton: .cancel()
