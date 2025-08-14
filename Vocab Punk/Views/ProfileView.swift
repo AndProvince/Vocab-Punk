@@ -107,6 +107,7 @@ struct ProfileView: View {
                         .alert("Вы уверены?", isPresented: $showResetConfirmation) {
                             Button("Сбросить", role: .destructive) {
                                 ProgressManager.shared.clearCache(for: loginVM.email, removeData: true)
+                                refreshProgress()
                             }
                             Button("Отмена", role: .cancel) { }
                         } message: {
