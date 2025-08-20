@@ -40,7 +40,7 @@ final class DictionaryUpdateService: ObservableObject {
     }
     
     private init() {
-        hostURL = "http://127.0.0.1:3000"
+        hostURL = "https://andprovince.pythonanywhere.com"
         manifestURL = URL(string: "\(hostURL)/version")!
 
         loadLocalVersion()

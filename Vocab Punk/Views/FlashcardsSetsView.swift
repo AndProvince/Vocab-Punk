@@ -74,8 +74,8 @@ struct FlashcardsSetsView: View {
                                 HStack {
                                     Image(LanguagesData.flags[code] ?? "flag")
                                         .resizable()
-                                        .frame(width: 24, height: 16)
-                                        .clipShape(RoundedRectangle(cornerRadius: 3))
+                                        .frame(width: 30, height: 20)
+                                        .clipShape(RoundedRectangle(cornerSize: CGSize(width: 4, height: 4)))
                                     
                                     Text(LanguagesData.names[code] ?? code)
                                 }

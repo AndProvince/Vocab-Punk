@@ -11,7 +11,7 @@ final class DictionaryUpdateScheduler {
     static let shared = DictionaryUpdateScheduler()
     
     private var timer: Timer?
-    private let interval: TimeInterval = 60 * 1 // каждые N минут
+    private let interval: TimeInterval = 60 * 10 // каждые N минут
 
     private init() {}
     

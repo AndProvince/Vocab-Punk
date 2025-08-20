@@ -59,9 +59,9 @@ class FlashcardsViewModel: ObservableObject {
         isFlipped.toggle()
     }
 
-    func nextCard() {
+    func nextCard(swipeUp: Bool) {
         guard let card = currentCard else { return }
-        ProgressManager.shared.updateProgress(for: userEmail, wordID: card.id, swipeUp: true)
+        ProgressManager.shared.updateProgress(for: userEmail, wordID: card.id, swipeUp: swipeUp)
         progress = ProgressManager.shared.loadProgress(for: userEmail)
         currentIndex = selectNextCardIndex()
         isFlipped = false

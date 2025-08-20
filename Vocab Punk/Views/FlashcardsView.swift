@@ -144,7 +144,7 @@ struct FlashcardsView: View {
                     cardYOffset = UIScreen.main.bounds.height
                     withAnimation {
                         showCheckmark = false
-                        viewModel.nextCard()
+                        viewModel.nextCard(swipeUp: true)
                         if viewModel.isFlipped { viewModel.flipCard() }
                         cardYOffset = 0
                         rotationAngle = 0
@@ -160,7 +160,7 @@ struct FlashcardsView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     withAnimation {
                         showCross = false
-                        viewModel.nextCard()
+                        viewModel.nextCard(swipeUp: false)
                         if viewModel.isFlipped { viewModel.flipCard() }
                         cardYOffset = 0
                         rotationAngle = 0
