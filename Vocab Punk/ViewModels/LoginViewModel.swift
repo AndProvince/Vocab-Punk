@@ -3,7 +3,15 @@ import SwiftUI
 class LoginViewModel: ObservableObject {
     @Published var email = ""
     @Published var password = ""
-    @Published var isLoggedIn = false
+    @Published var isLoggedIn = false {
+        didSet {
+            if isLoggedIn {
+                Task {
+                    await loadUserProgress()
+                }
+            }
+        }
+    }
     @Published var errorMessage: String?
     @Published var isRegisterMode = false
     
@@ -34,7 +42,15 @@ class LoginViewModel: ObservableObject {
         if auth.register(email: email, password: password) {
             isLoggedIn = true
             errorMessage = nil
-//            print("Регистрация с email: \(email), пароль: \(password)")
+
+            Task {
+                do {
+                    try await UserService.shared.registerUser(email: email, password: password)
+                    print("✅ Пользователь зарегистрирован на сервере")
+                } catch {
+                    print("❌ Ошибка при регистрации на сервере: \(error)")
+                }
+            }
         } else {
             errorMessage = "Пользователь с таким email уже существует"
         }
@@ -67,5 +83,15 @@ class LoginViewModel: ObservableObject {
         email = ""      // очищаем email
         password = ""   // очищаем пароль
         AuthManager.shared.deleteCurrentUser()
+    }
+    
+    private func loadUserProgress() async {
+        do {
+            let records = try await UserService.shared.fetchProgress(email: email)
+            ProgressManager.shared.saveProgress(for: email, progress: records)
+            print("✅ Прогресс загружен с сервера для \(email)")
+        } catch {
+            print("❌ Ошибка загрузки прогресса: \(error)")
+        }
     }
 }

@@ -58,6 +58,16 @@ class ProgressManager {
         }
         progress[wordID] = record
         saveProgress(for: email, progress: progress)
+        
+        // Отправляем на сервер асинхронно
+        Task {
+            do {
+                try await UserService.shared.uploadProgress(email: email, progress: [wordID: record])
+                print("✅ Прогресс пользователя \(email) синхронизирован с сервером, id: \(wordID)")
+            } catch {
+                print("❌ Ошибка отправки прогресса: \(error)")
+            }
+        }
     }
     
     // MARK: - Средний прогресс по уровню

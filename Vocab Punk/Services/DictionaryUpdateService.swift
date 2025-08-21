@@ -7,10 +7,6 @@
 
 import Foundation
 
-extension Notification.Name {
-    static let dictionariesDidUpdate = Notification.Name("dictionariesDidUpdate")
-}
-
 enum DictionaryUpdateError: Error {
     case invalidManifest
     case downloadFailed(URL)
@@ -40,7 +36,7 @@ final class DictionaryUpdateService: ObservableObject {
     }
     
     private init() {
-        hostURL = "https://andprovince.pythonanywhere.com"
+        hostURL = "http://127.0.0.1:3000"   // "https://andprovince.pythonanywhere.com"
         manifestURL = URL(string: "\(hostURL)/version")!
 
         loadLocalVersion()
