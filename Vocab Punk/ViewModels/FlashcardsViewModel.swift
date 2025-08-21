@@ -12,16 +12,19 @@ class FlashcardsViewModel: ObservableObject {
     @Published var cards: [WordCard] = []
     @Published var currentIndex: Int = 0
     @Published var isFlipped: Bool = false
+    
+    private var loginViewModel: LoginViewModel
 
-    let userEmail: String
+//    let userEmail: String
     let lang: String
     let level: String
 
     private var cancellables = Set<AnyCancellable>()
     public var progress: [String: WordProgress] = [:]
 
-    init(email: String, lang: String = "EN", level: String = "A1") {
-        self.userEmail = email
+    init(loginViewModel: LoginViewModel, lang: String = "EN", level: String = "A1") {
+//        self.userEmail = email
+        self.loginViewModel = loginViewModel
         self.cards = []
         self.progress = [:]
         self.currentIndex = 0
@@ -29,7 +32,9 @@ class FlashcardsViewModel: ObservableObject {
         self.lang = lang
 
         loadCards()
-        self.progress = ProgressManager.shared.loadProgress(for: email)
+        if self.loginViewModel.isLoggedIn {
+            self.progress = ProgressManager.shared.loadProgress(for: self.loginViewModel.email)
+        }
         self.currentIndex = self.selectNextCardIndex()
         
         // Подпишемся на обновление словарей
@@ -61,8 +66,10 @@ class FlashcardsViewModel: ObservableObject {
 
     func nextCard(swipeUp: Bool) {
         guard let card = currentCard else { return }
-        ProgressManager.shared.updateProgress(for: userEmail, wordID: card.id, swipeUp: swipeUp)
-        progress = ProgressManager.shared.loadProgress(for: userEmail)
+        if loginViewModel.isLoggedIn {
+            ProgressManager.shared.updateProgress(for: loginViewModel.email, wordID: card.id, swipeUp: swipeUp)
+            progress = ProgressManager.shared.loadProgress(for: loginViewModel.email)
+        }
         currentIndex = selectNextCardIndex()
         isFlipped = false
     }
@@ -96,7 +103,9 @@ class FlashcardsViewModel: ObservableObject {
     
     // MARK: - Helpers
     func resetProgress() {
-        ProgressManager.shared.saveProgress(for: userEmail, progress: [:])
+        if loginViewModel.isLoggedIn {
+            ProgressManager.shared.saveProgress(for: loginViewModel.email, progress: [:])
+        }
         progress = [:]
         currentIndex = 0
         isFlipped = false

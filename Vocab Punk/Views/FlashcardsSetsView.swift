@@ -20,7 +20,7 @@ struct FlashcardsSetsView: View {
     var body: some View {
         NavigationView {
             VStack {
-                if loginViewModel.isLoggedIn {
+//                if loginViewModel.isLoggedIn {
                     ScrollView {
                         if let languageLevels = fsViewModel.levels[selectedLanguage] {
                             VStack(spacing: 16) {
@@ -41,22 +41,22 @@ struct FlashcardsSetsView: View {
                             }
                         }
                     }
-                } else {
-                    VStack(spacing: 12) {
-                        Text("Войдите в профиль, чтобы начать изучение.")
-                            .foregroundColor(.gray)
-                            .padding()
-
-                        Button(action: {
-                            isShowingProfile = true
-                        }) {
-                            Text("Войти или зарегистрироваться")
-                                .font(.body)
-                                .underline()
-                                .foregroundColor(.blue)
-                        }
-                    }
-                }
+//                } else {
+//                    VStack(spacing: 12) {
+//                        Text("Войдите в профиль, чтобы начать изучение.")
+//                            .foregroundColor(.gray)
+//                            .padding()
+//
+//                        Button(action: {
+//                            isShowingProfile = true
+//                        }) {
+//                            Text("Войти или зарегистрироваться")
+//                                .font(.body)
+//                                .underline()
+//                                .foregroundColor(.blue)
+//                        }
+//                    }
+//                }
 
                 Spacer()
                 
@@ -98,12 +98,12 @@ struct FlashcardsSetsView: View {
             )
             .sheet(item: $selectedLevel) { item in
                 FlashcardsView(
-                    viewModel: FlashcardsViewModel(email: loginViewModel.email, lang: selectedLanguage, level: item.value)
+                    viewModel: FlashcardsViewModel(loginViewModel: loginViewModel, lang: selectedLanguage, level: item.value)
                 )
             }
             .sheet(isPresented: $isShowingProfile) {
                 if loginViewModel.isLoggedIn {
-                    ProfileView(loginVM: loginViewModel, selectedLanguage: $selectedLanguage)
+                    ProfileView(loginViewModel: loginViewModel, selectedLanguage: $selectedLanguage)
                 } else {
                     LoginView(viewModel: loginViewModel)
                 }
