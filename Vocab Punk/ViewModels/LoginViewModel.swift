@@ -18,41 +18,43 @@ class LoginViewModel: ObservableObject {
     private let auth = AuthManager.shared
     
     init(){
-        if let currentUser = AuthManager.shared.getCurrentUser() {
-            email = currentUser
-            isLoggedIn = true
-        }
+        self.isLoggedIn = auth.isLoggedIn
+        self.email = auth.currentEmail ?? ""
     }
     
     func login() {
         guard validateInputs() else { return }
         
-        if auth.authenticate(email: email, password: password) {
-            isLoggedIn = true
-            errorMessage = nil
-//            print("Вход выполнен с email: \(email), пароль: \(password)")
-        } else {
-            errorMessage = "Неверный email или пароль"
+        Task {
+            do {
+                try await auth.login(email: email, password: password)
+                await MainActor.run {
+                    isLoggedIn = true
+                    errorMessage = nil
+                }
+            } catch {
+                await MainActor.run {
+                    errorMessage = "Ошибка входа: \(error.localizedDescription)"
+                }
+            }
         }
     }
     
     func register() {
         guard validateInputs() else { return }
         
-        if auth.register(email: email, password: password) {
-            isLoggedIn = true
-            errorMessage = nil
-
-            Task {
-                do {
-                    try await UserService.shared.registerUser(email: email, password: password)
-                    print("✅ Пользователь зарегистрирован на сервере")
-                } catch {
-                    print("❌ Ошибка при регистрации на сервере: \(error)")
+        Task {
+            do {
+                try await auth.register(email: email, password: password)
+                await MainActor.run {
+                    isLoggedIn = true
+                    errorMessage = nil
+                }
+            } catch {
+                await MainActor.run {
+                    errorMessage = "Ошибка регистрации: \(error.localizedDescription)"
                 }
             }
-        } else {
-            errorMessage = "Пользователь с таким email уже существует"
         }
     }
     
@@ -79,10 +81,11 @@ class LoginViewModel: ObservableObject {
     }
     
     func logout() {
+        auth.logout()
         isLoggedIn = false
+        isRegisterMode = false
         email = ""      // очищаем email
         password = ""   // очищаем пароль
-        AuthManager.shared.deleteCurrentUser()
     }
     
     private func loadUserProgress() async {

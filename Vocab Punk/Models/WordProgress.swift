@@ -36,7 +36,7 @@ struct WordProgress: Codable, Identifiable {
     
     mutating func decayIfNeeded() {
         let weeksPassed = Int(Date().timeIntervalSince(lastReviewed) / (60 * 60 * 24 * 7))
-        if weeksPassed >= 3 {
+        if weeksPassed >= 1 {
             memoryScore = max(0, memoryScore - 10)
             lastReviewed = Date()
         }

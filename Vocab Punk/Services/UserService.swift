@@ -7,6 +7,10 @@
 
 import Foundation
 
+struct ServerErrorResponse: Codable {
+    let error: String
+}
+
 final class UserService {
     static let shared = UserService()
     private init() {}
@@ -16,7 +20,7 @@ final class UserService {
     }
     
     // Регистрация
-    func registerUser(email: String, password: String) async throws {
+    func registerUser(email: String, password: String) async throws -> String { // -> email
         let url = URL(string: "\(baseURL)/clients/register")!
         let body = ["email": email, "password": password]
         var request = URLRequest(url: url)
@@ -24,10 +28,53 @@ final class UserService {
         request.httpBody = try JSONEncoder().encode(body)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let (_, response) = try await URLSession.shared.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200..<300).contains(httpResponse.statusCode) else {
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
             throw URLError(.badServerResponse)
+        }
+        
+        if (200..<300).contains(httpResponse.statusCode) {
+            // Парсим ответ
+            struct LoginResponse: Codable { let email: String; let status: String }
+            let decoded = try JSONDecoder().decode(LoginResponse.self, from: data)
+            return decoded.email
+        } else {
+            if let serverError = try? JSONDecoder().decode(ServerErrorResponse.self, from: data) {
+                throw NSError(domain: "", code: httpResponse.statusCode,
+                              userInfo: [NSLocalizedDescriptionKey: serverError.error])
+            } else {
+                throw URLError(.badServerResponse)
+            }
+        }
+    }
+    
+    // Вход
+    func loginUser(email: String, password: String) async throws -> String { // -> email
+        let url = URL(string: "\(baseURL)/clients/login")!
+        let body = ["email": email, "password": password]
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.httpBody = try JSONEncoder().encode(body)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+        
+        if (200..<300).contains(httpResponse.statusCode) {
+            // Парсим ответ
+            struct LoginResponse: Codable { let email: String; let status: String }
+            let decoded = try JSONDecoder().decode(LoginResponse.self, from: data)
+            return decoded.email
+        } else {
+            if let serverError = try? JSONDecoder().decode(ServerErrorResponse.self, from: data) {
+                throw NSError(domain: "", code: httpResponse.statusCode,
+                              userInfo: [NSLocalizedDescriptionKey: serverError.error])
+            } else {
+                throw URLError(.badServerResponse)
+            }
         }
     }
     

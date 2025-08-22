@@ -20,43 +20,26 @@ struct FlashcardsSetsView: View {
     var body: some View {
         NavigationView {
             VStack {
-//                if loginViewModel.isLoggedIn {
-                    ScrollView {
-                        if let languageLevels = fsViewModel.levels[selectedLanguage] {
-                            VStack(spacing: 16) {
-                                ForEach(languageLevels, id: \.self) { level in
-                                    LevelSelectButton(level: level) {
-                                        selectedLevel = IdentifiableString(value: level)
-                                    }
-                                    .padding(.horizontal)
+                ScrollView {
+                    if let languageLevels = fsViewModel.levels[selectedLanguage] {
+                        VStack(spacing: 16) {
+                            ForEach(languageLevels, id: \.self) { level in
+                                LevelSelectButton(level: level) {
+                                    selectedLevel = IdentifiableString(value: level)
                                 }
+                                .padding(.horizontal)
                             }
-                            .padding(.top, 20)
                         }
-                        else {
-                            VStack(spacing: 12) {
-                                Text("Словари не загружены")
-                                    .foregroundColor(.gray)
-                                    .padding()
-                            }
+                        .padding(.top, 20)
+                    }
+                    else {
+                        VStack(spacing: 12) {
+                            Text("Словари не загружены")
+                                .foregroundColor(.gray)
+                                .padding()
                         }
                     }
-//                } else {
-//                    VStack(spacing: 12) {
-//                        Text("Войдите в профиль, чтобы начать изучение.")
-//                            .foregroundColor(.gray)
-//                            .padding()
-//
-//                        Button(action: {
-//                            isShowingProfile = true
-//                        }) {
-//                            Text("Войти или зарегистрироваться")
-//                                .font(.body)
-//                                .underline()
-//                                .foregroundColor(.blue)
-//                        }
-//                    }
-//                }
+                }
 
                 Spacer()
                 
